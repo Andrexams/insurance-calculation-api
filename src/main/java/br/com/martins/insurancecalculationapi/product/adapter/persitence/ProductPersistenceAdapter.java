@@ -1,6 +1,6 @@
 package br.com.martins.insurancecalculationapi.product.adapter.persitence;
 
-import br.com.martins.insurancecalculationapi.commom.exception.DataConstraintViolationException;
+import br.com.martins.insurancecalculationapi.common.exception.DataConstraintViolationException;
 import br.com.martins.insurancecalculationapi.product.entity.Product;
 import br.com.martins.insurancecalculationapi.product.port.ProductOutputPort;
 import org.hibernate.exception.ConstraintViolationException;
@@ -31,7 +31,8 @@ public class ProductPersistenceAdapter implements ProductOutputPort {
                 throw new DataConstraintViolationException(dataIntegrityViolationException.getCause().getMessage(),
                         dataIntegrityViolationException.getCause(), constraintName);
             }
-            throw dataIntegrityViolationException;
+            throw new DataConstraintViolationException(dataIntegrityViolationException.getCause().getMessage(),
+                    dataIntegrityViolationException.getCause(), "");
         }
     }
 

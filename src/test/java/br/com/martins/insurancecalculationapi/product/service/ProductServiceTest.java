@@ -1,5 +1,6 @@
 package br.com.martins.insurancecalculationapi.product.service;
 
+import br.com.martins.insurancecalculationapi.common.exception.DataConstraintViolationException;
 import br.com.martins.insurancecalculationapi.product.adapter.persitence.ProductRepository;
 import br.com.martins.insurancecalculationapi.product.entity.Product;
 import br.com.martins.insurancecalculationapi.product.enumeration.ProductCategoryEnum;
@@ -8,6 +9,7 @@ import br.com.martins.insurancecalculationapi.product.exception.ProductNotFoundE
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.UUID;
@@ -41,7 +43,7 @@ public class ProductServiceTest {
         //call create product
         Product persistedProduct = productService.insert(product);
 
-        //assert response
+        //assert
         assertNotNull(persistedProduct.getId());
         assertEquals(product.getCategory(), persistedProduct.getCategory());
         assertEquals(product.getName(), persistedProduct.getName());
@@ -65,7 +67,7 @@ public class ProductServiceTest {
         //call create product
         Product persistedProduct = productService.update(product);
 
-        //assert response
+        //assert
         assertNotNull(persistedProduct.getId());
         assertEquals(product.getCategory(), persistedProduct.getCategory());
         assertEquals(product.getName(), persistedProduct.getName());
@@ -133,6 +135,21 @@ public class ProductServiceTest {
         //call and assert
         assertThrows(ProductNotFoundException.class, () -> {
             productService.update(product);
+        });
+    }
+
+    @Test
+    void should_ThrowDataConstraintViolationException_whenTryInsertProductWithNameLargeThanColumn() {
+        //prepare
+        Product product = Product.builder()
+                .basePrice(100.0)
+                .category(ProductCategoryEnum.RESIDENCIAL)
+                .name("Seguro Residencial Seguro Residencial Seguro Residencial")
+                .build();
+
+        //call and assert
+        assertThrows(DataConstraintViolationException.class, () -> {
+            productService.insert(product);
         });
     }
 

@@ -1,4 +1,4 @@
-package br.com.martins.insurancecalculationapi.commom.exception;
+package br.com.martins.insurancecalculationapi.common.exception;
 
 import lombok.Getter;
 

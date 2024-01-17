@@ -4,6 +4,7 @@ import br.com.martins.insurancecalculationapi.product.converter.ProductConverter
 import br.com.martins.insurancecalculationapi.product.entity.Product;
 import br.com.martins.insurancecalculationapi.product.adapter.dto.ProductDto;
 import br.com.martins.insurancecalculationapi.product.port.ProductInputPort;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,13 +24,13 @@ public class ProductRestController {
     }
 
     @PostMapping("/products")
-    public ProductDto insert(@RequestBody ProductDto productDto){
+    public ProductDto insert(@Valid @RequestBody ProductDto productDto){
         Product entity = productConverter.toEntity(productDto);
         return productConverter.toDto(productInputPort.insert(entity));
     }
 
     @PutMapping("/products")
-    public ProductDto update(@RequestBody ProductDto productDto){
+    public ProductDto update(@Valid @RequestBody ProductDto productDto){
         Product entity = productConverter.toEntity(productDto);
         return productConverter.toDto(productInputPort.update(entity));
     }

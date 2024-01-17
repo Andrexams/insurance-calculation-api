@@ -1,9 +1,11 @@
 package br.com.martins.insurancecalculationapi.product.adapter.controller;
 
-import br.com.martins.insurancecalculationapi.commom.adapter.rest.CustomErrorResponse;
+import br.com.martins.insurancecalculationapi.common.adapter.rest.CustomErrorResponse;
 import br.com.martins.insurancecalculationapi.product.adapter.dto.ProductDto;
+import br.com.martins.insurancecalculationapi.product.adapter.persitence.ProductRepository;
 import br.com.martins.insurancecalculationapi.product.enumeration.ProductCategoryEnum;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,13 +28,21 @@ public class ProductRestControllerTest {
     @Autowired
     TestRestTemplate restTemplate;
 
+    @Autowired
+    ProductRepository productRepository;
+
+    @AfterEach
+    void deleteProducts() {
+        productRepository.deleteAll();
+    }
+
     @Test
     void should_CreateAndUpdateProductWithTaxedPrice() {
         //prepare
         ProductDto productDtoRequest = ProductDto.builder()
-                .basePrice(100.0)
-                .category(ProductCategoryEnum.VIDA.name())
-                .name("Seguro de Vida")
+                .preco_base(100.0)
+                .categoria(ProductCategoryEnum.VIDA.name())
+                .nome("Seguro de Vida")
                 .build();
         HttpEntity<ProductDto> request = getRequest(productDtoRequest);
 
@@ -43,11 +53,7 @@ public class ProductRestControllerTest {
 
         //assert response
         assertEquals(productDtoRespEntity.getStatusCode(), HttpStatus.OK);
-        assertNotNull(productDtoResponse.getId());
-        assertEquals(productDtoRequest.getCategory(), productDtoResponse.getCategory());
-        assertEquals(productDtoRequest.getName(), productDtoResponse.getName());
-        assertEquals(productDtoRequest.getBasePrice(), productDtoResponse.getBasePrice());
-        assertEquals(103.2, productDtoResponse.getTaxedPrice());
+        assertProduct(productDtoRequest, productDtoResponse);
 
         //do update
         should_UpdateProductWithTaxedPrice(productDtoResponse.getId());
@@ -57,9 +63,9 @@ public class ProductRestControllerTest {
         //prepare
         ProductDto productDtoRequest = ProductDto.builder()
                 .id(productId)
-                .basePrice(200.0)
-                .category(ProductCategoryEnum.VIDA.name())
-                .name("Seguro de Vida Especial")
+                .preco_base(200.0)
+                .categoria(ProductCategoryEnum.VIDA.name())
+                .nome("Seguro de Vida Especial")
                 .build();
         HttpEntity<ProductDto> request = getRequest(productDtoRequest);
 
@@ -70,11 +76,7 @@ public class ProductRestControllerTest {
 
         //assert response
         assertEquals(productDtoRespEntity.getStatusCode(), HttpStatus.OK);
-        assertNotNull(productDtoResponse.getId());
-        assertEquals(productDtoRequest.getCategory(), productDtoResponse.getCategory());
-        assertEquals(productDtoRequest.getName(), productDtoResponse.getName());
-        assertEquals(productDtoRequest.getBasePrice(), productDtoResponse.getBasePrice());
-        assertEquals(206.4, productDtoResponse.getTaxedPrice());
+        assertProduct(productDtoRequest, productDtoResponse);
     }
 
     @Test
@@ -82,9 +84,9 @@ public class ProductRestControllerTest {
         //prepare
         ProductDto productDtoRequest = ProductDto.builder()
                 .id(UUID.randomUUID())
-                .basePrice(200.0)
-                .category(ProductCategoryEnum.RESIDENCIAL.name())
-                .name("Seguro Residencial")
+                .preco_base(200.0)
+                .categoria(ProductCategoryEnum.RESIDENCIAL.name())
+                .nome("Seguro Residencial")
                 .build();
         HttpEntity<ProductDto> request = getRequest(productDtoRequest);
 
@@ -97,20 +99,13 @@ public class ProductRestControllerTest {
         assertCustomErrorResponse(responseResponseEntity);
     }
 
-    private static void assertCustomErrorResponse(ResponseEntity<CustomErrorResponse> responseResponseEntity) {
-        CustomErrorResponse body = responseResponseEntity.getBody();
-        Assertions.assertThat(body.getMessage()).isNotEmpty();
-        Assertions.assertThat(body.getType()).isNotEmpty();
-        assertNotNull(body.getTimestamp());
-    }
-
     @Test
     void should_ReturnErrorMessageAndBadRequest_whenTryInsertSameProductName() {
         //prepare
         ProductDto productDto = ProductDto.builder()
-                .basePrice(100.0)
-                .category(ProductCategoryEnum.RESIDENCIAL.name())
-                .name("Seguro Residencial")
+                .preco_base(100.0)
+                .categoria(ProductCategoryEnum.RESIDENCIAL.name())
+                .nome("Seguro Residencial")
                 .build();
 
         HttpEntity<ProductDto> request = getRequest(productDto);
@@ -128,6 +123,81 @@ public class ProductRestControllerTest {
         //assert response
         assertEquals(customErrorResponseEntity.getStatusCode(), HttpStatus.BAD_REQUEST);
         assertCustomErrorResponse(customErrorResponseEntity);
+    }
+
+    @Test
+    void should_ReturnAllProducts() {
+        //prepare
+        ProductDto productDto = ProductDto.builder()
+                .preco_base(500.0)
+                .categoria(ProductCategoryEnum.RESIDENCIAL.name())
+                .nome("Seguro Residencial Especial")
+                .build();
+
+        HttpEntity<ProductDto> request = getRequest(productDto);
+        this.restTemplate.postForEntity(getUrl(), request, ProductDto.class);
+
+        ProductDto productDto2 = ProductDto.builder()
+                .preco_base(350.0)
+                .categoria(ProductCategoryEnum.VIAGEM.name())
+                .nome("Seguro Viagem Internacional")
+                .build();
+
+        HttpEntity<ProductDto> request2 = getRequest(productDto2);
+        this.restTemplate.postForEntity(getUrl(), request2, ProductDto.class);
+
+        //call get all
+        ResponseEntity<ProductDto[]> productDtoRespEntity = this.restTemplate.getForEntity(getUrl(), ProductDto[].class);
+
+        //assert response
+        assertEquals(productDtoRespEntity.getStatusCode(), HttpStatus.OK);
+
+        ProductDto[] productDtos = productDtoRespEntity.getBody();
+        assertNotNull(productDtos);
+        assertEquals(2, productDtos.length);
+
+        ProductDto productDtoByName = Arrays.stream(productDtos)
+                .filter(p -> p.getNome().equals(productDto.getNome()))
+                .findFirst()
+                .orElseThrow();
+
+        assertProduct(productDto, productDtoByName);
+    }
+
+    @Test
+    void should_ThrowException() {
+        //prepare
+        ProductDto productDtoRequest = ProductDto.builder()
+                .id(UUID.randomUUID())
+                .preco_base(200.0)
+                .categoria("CASA")
+                .nome("Seguro Residencial")
+                .build();
+        HttpEntity<ProductDto> request = getRequest(productDtoRequest);
+
+        //call
+        ResponseEntity<CustomErrorResponse> customErrorResponseEntity = this.restTemplate.postForEntity(getUrl(), request,
+                CustomErrorResponse.class);
+
+        //assert
+        assertEquals(customErrorResponseEntity.getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR);
+        assertCustomErrorResponse(customErrorResponseEntity);
+    }
+
+
+    private static void assertCustomErrorResponse(ResponseEntity<CustomErrorResponse> responseResponseEntity) {
+        CustomErrorResponse body = responseResponseEntity.getBody();
+        Assertions.assertThat(body.getMessage()).isNotEmpty();
+        Assertions.assertThat(body.getType()).isNotEmpty();
+        assertNotNull(body.getTimestamp());
+    }
+
+    private static void assertProduct(ProductDto productDtoRequest, ProductDto productDtoResponse) {
+        assertNotNull(productDtoResponse.getId());
+        assertEquals(productDtoRequest.getCategoria(), productDtoResponse.getCategoria());
+        assertEquals(productDtoRequest.getNome(), productDtoResponse.getNome());
+        assertEquals(productDtoRequest.getPreco_base(), productDtoResponse.getPreco_base());
+        assertNotNull(productDtoResponse.getPreco_tarifado());
     }
 
     String getUrl() {

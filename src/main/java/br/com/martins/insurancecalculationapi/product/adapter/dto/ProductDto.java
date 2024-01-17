@@ -1,6 +1,8 @@
 package br.com.martins.insurancecalculationapi.product.adapter.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.UUID;
@@ -15,15 +17,15 @@ public class ProductDto {
 
     private UUID id;
 
-    @JsonProperty("nome")
-    private String name;
+    @NotBlank
+    private String nome;
 
-    @JsonProperty("categoria")
-    private String category;
+    @NotBlank
+    private String categoria;
 
-    @JsonProperty("preco_base")
-    private Double basePrice;
+    @NotNull
+    private Double preco_base;
 
-    @JsonProperty("preco_tarifado")
-    private Double taxedPrice;
+
+    private Double preco_tarifado;
 }

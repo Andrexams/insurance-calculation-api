@@ -25,10 +25,10 @@ public class ProductConverterTest {
         //prepare
         ProductDto productDto = ProductDto.builder()
                 .id(UUID.randomUUID())
-                .basePrice(100.0)
-                .taxedPrice(103.25)
-                .category("VIDA")
-                .name("Seguro de Vida")
+                .preco_base(100.0)
+                .preco_tarifado(103.25)
+                .categoria("VIDA")
+                .nome("Seguro de Vida")
                 .build();
 
         //call
@@ -46,10 +46,10 @@ public class ProductConverterTest {
 
     private static void assertProduct(ProductDto productDto, Product entity) {
         assertEquals(productDto.getId(), entity.getId());
-        assertEquals(productDto.getName(), entity.getName());
-        assertEquals(productDto.getCategory(), entity.getCategory().name());
-        assertEquals(productDto.getBasePrice(), entity.getBasePrice());
-        assertEquals(productDto.getTaxedPrice(), entity.getTaxedPrice());
+        assertEquals(productDto.getNome(), entity.getName());
+        assertEquals(productDto.getCategoria(), entity.getCategory().name());
+        assertEquals(productDto.getPreco_base(), entity.getBasePrice());
+        assertEquals(productDto.getPreco_tarifado(), entity.getTaxedPrice());
     }
 
     @Test

@@ -20,6 +20,7 @@ public class Product {
     @Id
     @GeneratedValue
     private UUID id;
+    @Column(length = 50)
     private String name;
     private ProductCategoryEnum category;
     private Double basePrice;

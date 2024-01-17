@@ -14,17 +14,22 @@ public class ProductConverter {
 
 
     public Product toEntity(ProductDto productDto) {
-        Product product = new Product();
-        BeanUtils.copyProperties(productDto, product);
-        product.setCategory(ProductCategoryEnum.valueOf(productDto.getCategory()));
-        return product;
+       return Product.builder()
+                .id(productDto.getId())
+                .name(productDto.getNome())
+                .category(ProductCategoryEnum.valueOf(productDto.getCategoria()))
+                .basePrice(productDto.getPreco_base())
+                .build();
     }
 
     public ProductDto toDto(Product product) {
-        ProductDto productDto = new ProductDto();
-        BeanUtils.copyProperties(product, productDto);
-        productDto.setCategory(product.getCategory().name());
-        return productDto;
+        return ProductDto.builder()
+                .id(product.getId())
+                .nome(product.getName())
+                .categoria(product.getCategory().name())
+                .preco_base(product.getBasePrice())
+                .preco_tarifado(product.getTaxedPrice())
+                .build();
     }
 
     public List<ProductDto> toDtoList(List<Product> productList) {

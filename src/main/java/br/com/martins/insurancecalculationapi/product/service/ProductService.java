@@ -1,6 +1,6 @@
 package br.com.martins.insurancecalculationapi.product.service;
 
-import br.com.martins.insurancecalculationapi.commom.exception.DataConstraintViolationException;
+import br.com.martins.insurancecalculationapi.common.exception.DataConstraintViolationException;
 import br.com.martins.insurancecalculationapi.product.entity.Product;
 import br.com.martins.insurancecalculationapi.product.exception.ProductNameExistsException;
 import br.com.martins.insurancecalculationapi.product.exception.ProductNotFoundException;
@@ -32,7 +32,7 @@ public class ProductService implements ProductInputPort {
             return productOutputPort.save(product);
         } catch (DataConstraintViolationException dataConstraintViolationException) {
             if (Objects.equals(dataConstraintViolationException.getConstraintName(), Product.UNIQUE_NAME_CONSTRAINT)) {
-                throw new ProductNameExistsException(String.format("Product with name %s already exists.", product.getName()),
+                throw new ProductNameExistsException(String.format("Já existe um produto com o nome %s.", product.getName()),
                         dataConstraintViolationException,Product.UNIQUE_NAME_CONSTRAINT);
             }
             throw dataConstraintViolationException;
@@ -49,7 +49,7 @@ public class ProductService implements ProductInputPort {
             persistedProduct.setTaxedPrice(productCalculationInputPort.calculateTaxedPrice(product));
 
             return productOutputPort.save(persistedProduct);
-        }).orElseThrow(() -> new ProductNotFoundException(String.format("Product not found with id %s.",product.getId())));
+        }).orElseThrow(() -> new ProductNotFoundException(String.format("Produto não localizado pelo id %s.",product.getId())));
     }
 
     @Override
