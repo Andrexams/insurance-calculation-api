@@ -37,7 +37,7 @@ propriedades como dialeto do hibernate, pool, string de conexão e também geren
 
 
 * Em relação aos testes, foi utilizado Mockito com JUnit para os testes unitários, e, para
-testes integrados foi utilizado SpringBootTest com JUnit obtendo total cobertura: 
+testes integrados/componentes/end-to-end foi utilizado SpringBootTest com JUnit obtendo total cobertura: 
 
 ![img_3.png](img_3.png)
 
