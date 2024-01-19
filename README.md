@@ -8,6 +8,7 @@
 ![img.png](img.png)
 
 4. Agora é executar pelo botão Run, ou Shift+F10
+5. Para auxiliar nas chamadas api importar a collection(Insurance Calculation Api.postman_collection.json) no postman 
 
 ## Sobre a solução:
 
