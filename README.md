@@ -2,7 +2,7 @@
 
 ### Para executar o projeto:
 1. Realizar o download e instalação do OpenJDK 17
-2. Abrir o projeto em sua IDE de preferência aqui foi usado o IntelliJ como exemplo
+2. Abrir o projeto em sua IDE de preferência, aqui foi usado o IntelliJ como exemplo
 3. Após o término do download das dependências configurar a classe de execução conforme imagem abaixo:
 
 ![img.png](img.png)
@@ -43,6 +43,6 @@ testes integrados/componentes/end-to-end foi utilizado SpringBootTest com JUnit 
 
 * Sobre a observabilidade(métricas, traces e logs), esse tema é específico por produto(Datadog, Dynatrace, Grafana...), suas configurações de ambiente, bibliotecas, agents são diferentes, o Datadog por exemplo é necessário rodar a aplicação com um agent(APM) embarcado no processo,
 incluir a dependência para a lib a qual disponibiliza métodos para trace e envio de métricas, os logs também precisam
-ser configurados para serem vinculados aos traces e seu formato deve o que o produto recomenda, no caso do Datadog
-o formato em Json, visto isso, nessa solução foi colocado apenas o registro de erros em console usando o logging(SLFJ), e a classe
-que intercepta e faz o registro é a RestControllerAdvice.
+ser configurados para serem vinculados aos traces e seu formato deve ser o que o produto recomenda, no caso do Datadog,
+formato em Json, visto isso, nessa solução foi colocado apenas o registro de erros em console usando o logging(SLFJ). A classe
+que intercepta as exceções(oriundas das chamadas da api) e faz o registro em log é a RestControllerAdvice.
